@@ -2,12 +2,13 @@
 
 PWD=$(shell pwd)
 TS = $(shell date '+%Y_%m_%d_%H_%M')
+UID = $(shell id -u):$(shell id -g)
 #TOKEN=....
 
 up:
 	docker-compose up -d
-	./wait-for-http-OK.sh https://ghost.bioatlas.se
-	xdg-open https://ghost.bioatlas.se
+	./wait-for-http-OK.sh http://ghost.bioatlas.se
+	xdg-open http://ghost.bioatlas.se
 
 down:
 	docker-compose down
@@ -19,6 +20,7 @@ theme-dl:
 	mkdir -p dl
 	#Rscript dl_themes.R
 	docker run -it --rm \
+		-u $(UID) \
 		-v $(PWD)/dl_themes.R:/home/rstudio/dl_themes.R \
 		-v $(PWD)/dl:/home/rstudio/dl \
 		raquamaps/mirroreum Rscript dl_themes.R
