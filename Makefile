@@ -17,7 +17,11 @@ content.zip:
 
 theme-dl:
 	mkdir -p dl
-	Rscript dl_themes.R
+	#Rscript dl_themes.R
+	docker run -it --rm \
+		-v $(PWD)/dl_themes.R:/home/rstudio/dl_themes.R \
+		-v $(PWD)/dl:/home/rstudio/dl \
+		raquamaps/mirroreum Rscript dl_themes.R
 
 content-cp:
 	scp bioatlas:/home/gbif/repos/ala-docker/ghost/content.zip .

@@ -19,11 +19,13 @@ https://github.com/curiositry/mnml-ghost-theme
 https://github.com/dime01/my-journey
 "
 
+message("Downloading themes ...")
+
 zips <- paste0(unlist(strsplit(trimws(themes), "\n")), "/archive/master.zip")
 
 
 dl_theme <- function(x) {
-  DL_DIR <- "~/repos/ghost-docker/dl/"
+  DL_DIR <- paste0(getwd(), "/dl/")
   if (!dir.exists(DL_DIR)) 
     dir.create(DL_DIR)
   DEST_FILE <- paste0(DL_DIR, rev(unlist(strsplit(x, "/")))[3], ".zip")
@@ -37,5 +39,7 @@ dl_theme <- function(x) {
 
 library(purrr)
 map(zips, dl_theme)
+
+message("Done")
 
 
