@@ -6,7 +6,8 @@ TS = $(shell date '+%Y_%m_%d_%H_%M')
 
 up:
 	docker-compose up -d
-	firefox https://ghost.bioatlas.se
+	./wait-for-http-OK.sh https://ghost.bioatlas.se
+	xdg-open https://ghost.bioatlas.se
 
 down:
 	docker-compose down
