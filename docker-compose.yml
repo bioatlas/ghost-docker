@@ -1,0 +1,54 @@
+version: '3'
+
+services:
+
+  dnsmasq:
+# https://stackoverflow.com/questions/35693117/how-can-i-give-docker-containers-access-to-a-dnsmasq-local-dns-resolver-on-the-h
+# https://github.com/mskyttner/dns-test-docker
+    image: andyshinn/dnsmasq:2.76
+    command: --log-facility=-
+    cap_add: 
+      - NET_ADMIN 
+    ports:
+      - 172.17.0.1:53:53/tcp
+      - 172.17.0.1:53:53/udp
+    links:
+      - proxy:ghost.bioatlas.se
+
+  proxy:
+    image: jwilder/nginx-proxy:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./certs:/etc/nginx/certs
+      - ./site.template:/etc/nginx/conf.d/site.template
+    environment:
+      - NGINX_MAX_BODY_SZ=100m
+    command: /bin/bash -c "envsubst < /etc/nginx/conf.d/site.template > /etc/nginx/conf.d/dina.conf && forego start -r"
+
+  ghost:
+    image: zzrot/alpine-ghost:latest
+    environment:
+      - VIRTUAL_HOST=ghost.bioatlas.se
+      - VIRTUAL_PORT=2368
+      - DEV_DOMAIN=http://ghost.bioatlas.se
+      - DEV_FORCE_ADMIN_SSL=false
+      - PROD_DOMAIN=http://ghost.bioatlas.se
+      - PROD_FORCE_ADMIN_SSL=false
+      - NODE_ENV=production
+    volumes:
+      - ./ghost/content:/var/lib/ghost
+
+  ghost-backup:
+    image: bennetimo/ghost-backup
+    container_name: ghost-backup
+    volumes:
+      - ./ghost/backups:/backups
+
+  static:
+    image: nginx:alpine
+    volumes:
+      - ./static:/usr/share/nginx/html
+
